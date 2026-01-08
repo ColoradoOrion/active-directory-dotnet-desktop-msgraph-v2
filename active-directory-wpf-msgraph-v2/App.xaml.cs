@@ -30,29 +30,63 @@ namespace active_directory_wpf_msgraph_v2
         private static string Tenant = ConfigurationManager.AppSettings["Tenant"];
         private static string Instance = "https://login.microsoftonline.com/";
         private static IPublicClientApplication _clientApp;
+        private static bool _useAlternateAuth = false;
 
         public static IPublicClientApplication PublicClientApp { get { return _clientApp; } }
+        public static bool UseAlternateAuth
+        {
+            get { return _useAlternateAuth; }
+            set
+            {
+                if (_useAlternateAuth != value)
+                {
+                    _useAlternateAuth = value;
+                    active_directory_wpf_msgraph_v2.Properties.Settings.Default.UseAlternateAuth = value;
+                    active_directory_wpf_msgraph_v2.Properties.Settings.Default.Save();
+                    CreateApplication();
+                }
+            }
+        }
 
         static App()
         {
+            // Load the saved authentication preference
+            _useAlternateAuth = active_directory_wpf_msgraph_v2.Properties.Settings.Default.UseAlternateAuth;
             CreateApplication();
         }
 
         public static void CreateApplication()
         {
-            BrokerOptions brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows);
+            if (_useAlternateAuth)
+            {
+                // Alternate authentication approach using WithTenantId and WithAuthority
+                var builder = PublicClientApplicationBuilder.Create(ClientId)
+                    .WithTenantId(Tenant)
+                    .WithAuthority(AzureCloudInstance.AzurePublic, AadAuthorityAudience.AzureAdMyOrg);
 
-            _clientApp = PublicClientApplicationBuilder.Create(ClientId)
-                .WithAuthority($"{Instance}{Tenant}")
-                .WithDefaultRedirectUri()
-                .WithBroker(brokerOptions)
-                .Build();
+                var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows);
+                builder = builder.WithBroker(brokerOptions)
+                    .WithDefaultRedirectUri();
 
-            MsalCacheHelper cacheHelper = CreateCacheHelperAsync().GetAwaiter().GetResult();
+                _clientApp = builder.Build();
+            }
+            else
+            {
+                // Original authentication approach
+                BrokerOptions brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows);
 
-            // Let the cache helper handle MSAL's cache, otherwise the user will be prompted to sign-in every time.
-            cacheHelper.RegisterCache(_clientApp.UserTokenCache);
-        }
+                _clientApp = PublicClientApplicationBuilder.Create(ClientId)
+                    .WithAuthority($"{Instance}{Tenant}")
+                    .WithDefaultRedirectUri()
+                    .WithBroker(brokerOptions)
+                    .Build();
+			}
+
+			MsalCacheHelper cacheHelper = CreateCacheHelperAsync().GetAwaiter().GetResult();
+
+			// Let the cache helper handle MSAL's cache, otherwise the user will be prompted to sign-in every time.
+			cacheHelper.RegisterCache(_clientApp.UserTokenCache);
+		}
 
         private static async Task<MsalCacheHelper> CreateCacheHelperAsync()
         {

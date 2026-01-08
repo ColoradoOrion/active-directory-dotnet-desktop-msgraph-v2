@@ -26,6 +26,18 @@ namespace active_directory_wpf_msgraph_v2
         public MainWindow()
         {
             InitializeComponent();
+            // Initialize checkbox from saved setting
+            UseAlternateAuthCheckBox.IsChecked = App.UseAlternateAuth;
+        }
+
+        /// <summary>
+        /// Handle checkbox change to switch authentication approaches
+        /// </summary>
+        private void UseAlternateAuthCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            App.UseAlternateAuth = UseAlternateAuthCheckBox.IsChecked == true;
+            ResultText.Text = $"Authentication approach changed to: {(App.UseAlternateAuth ? "Alternate (WithTenantId)" : "Original (WithAuthority)")}";
+            TokenInfoText.Text = string.Empty;
         }
 
         /// <summary>

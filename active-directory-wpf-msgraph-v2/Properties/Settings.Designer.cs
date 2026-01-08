@@ -22,5 +22,17 @@ namespace active_directory_wpf_msgraph_v2.Properties {
                 return defaultInstance;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseAlternateAuth {
+            get {
+                return ((bool)(this["UseAlternateAuth"]));
+            }
+            set {
+                this["UseAlternateAuth"] = value;
+            }
+        }
     }
 }
