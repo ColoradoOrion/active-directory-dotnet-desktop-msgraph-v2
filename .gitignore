@@ -251,3 +251,4 @@ paket-files/
 .idea/
 *.sln.iml
 /1P.txt
+/active-directory-wpf-msgraph-v2/App.config
