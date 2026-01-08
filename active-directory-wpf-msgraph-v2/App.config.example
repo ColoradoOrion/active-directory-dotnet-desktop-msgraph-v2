@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <startup>
+        <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.8"/>
+    </startup>
+    <appSettings>
+        <add key="ClientId" value="0a82dd0b-34c0-4598-92c0-11739e7250e4"/>
+        <add key="Tenant" value="deea2b5b-d14d-4c32-bf4f-220be98ce99b"/>
+    </appSettings>
+</configuration>
